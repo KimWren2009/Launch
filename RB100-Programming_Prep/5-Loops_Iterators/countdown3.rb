@@ -1,9 +1,0 @@
-# FOR LOOP used to loop over a collection of elements using a RANGE
-
-x = gets.chomp.to_i
-
-for i in 1..x do
-  puts i
-end
-
-puts "Done!"
