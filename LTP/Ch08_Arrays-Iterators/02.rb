@@ -1,0 +1,2 @@
+table_of_contents = [['Table of Contents'], ['Chapter 1: Getting Started          page 1'], ['Chapter 2: Numbers                  page 9'], ['Chapter 3: Letters                  page 13']]
+puts table_of_contents
