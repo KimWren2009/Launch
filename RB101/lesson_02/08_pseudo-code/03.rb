@@ -1,25 +1,29 @@
-# 2. Write out pseudo-code (both casual and formal) for a method that takes an array of strings, and returns a string that is all those strings concatenated together.
+# 3. Write out pseudo-code (both casual and formal) for a method that takes an array of integers, and returns a new array with every other element.
 
 =begin
 Informal
-  - create an empty string variable
-  - set an iterator to 0
-  - iterate through an array of strings
-  - add each value (string) to the empty string
-  - print the new string
-=end
 
-=begin
+  - initialize a new empty array
+  - interate through the given array
+  - if index position is even, add to new array
+  - if index position is odd, skip 
+  - print new array
+
+
 Formal
 
 START
 
-  SET empty string called new_string
+  SET every_other = []
 
-  SET method
-    use .each method to iterate through array, accepting a parameter |word|
-    use .push method to add each |word| to new_tring
+  use every_other.each_index to iterate through array
+    
+    IF index % 2 == 0
+      .push to every_other 
+    ELSE
+      skip
 
-END
+  PRINT every_other
 
+  END
 =end

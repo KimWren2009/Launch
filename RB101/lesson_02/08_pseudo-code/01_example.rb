@@ -18,7 +18,29 @@ WHILE iterator <=length of numbers
 PRINT saved_number
 
 END
+
+START
+
+SET large_numbers = []
+SET keep_going = true
+
+WHILE keep_going == true
+  GET "enter a collection"
+  SET collection
+  set largest_number = SUBPROCESS "extract the largest one from that collection"
+  large_numbers.push(largest_number)
+  GET "enter another collection?"
+  IF "yes"
+    keep_going = true
+  ELSE
+    keep_going = false
+  IF keep_going == false
+    exit the loop
+
+PRINT large_numbers
 =end
+
+
 
 def find_greatest(numbers)
   return if numbers.nil?
