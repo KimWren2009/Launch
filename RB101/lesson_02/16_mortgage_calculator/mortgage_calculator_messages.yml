@@ -1,0 +1,7 @@
+welcome: 'Welcome to the Mortgage Calculator!'
+input_loan_amount: 'What is the loan amount?'
+invalid_loan_amount: "Hmmm... that doesn't look like a valid number. Please enter a valid loan amount:"
+invalid_apr: "Hmmm... that doesn't look right. Please enter a valid APR (ex. 3.67)"
+invalid_duration: "Hmmm... That doesn't look right. Please enter a valid mortgage duration (10, 15, 20, 25, 30, or 40)"
+another_loan: 'Would you like to calculate another mortgage? (y/n)'
+goodbye: 'Thanks for calculating!'
