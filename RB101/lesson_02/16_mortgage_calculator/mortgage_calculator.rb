@@ -19,13 +19,17 @@ end
 def valid_input?(input, input_type)
   case input_type
   when 'loan_amount'
-    input.to_i.to_s == input && input.to_i > 0
+    valid_number?(input)
   when 'annual_interest'
-    input.to_i.to_s == input && input.to_i > 0 ||
-      input.to_f.to_s == input && input.to_i > 0
+    valid_number?(input)
   when 'duration_years'
-    input.to_i.to_s == input && valid_duration?(input)
+    valid_number?(input) && valid_duration?(input)
   end
+end
+
+def valid_number?(input)
+  input.to_i.to_s == input && input.to_i > 0 ||
+    input.to_f.to_s == input && input.to_i > 0
 end
 
 def valid_duration?(input)
