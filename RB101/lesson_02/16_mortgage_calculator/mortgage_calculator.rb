@@ -1,5 +1,6 @@
 require 'yaml'
 MESSAGES = YAML.load_file('mortgage_calculator_messages.yml')
+DURATION_OPTIONS = %w(10 15 20 25 30 40).freeze
 
 def prompt(message)
   puts("=> #{message}")
@@ -10,7 +11,7 @@ def retrieve_input(input_type)
   loop do
     input = gets.chomp
     break if valid_input?(input, input_type)
-    invalid_input_message(input_type)
+    prompt(MESSAGES["invalid_#{input_type}"])
   end
   system('clear')
   input
@@ -29,23 +30,23 @@ end
 
 def valid_number?(input)
   input.to_i.to_s == input && input.to_i > 0 ||
-    input.to_f.to_s == input && input.to_i > 0
+    input.to_f.to_s == input && input.to_f > 0
 end
 
 def valid_duration?(input)
-  duration_options = %w(10 15 20 25 30 40)
-  duration_options.include?(input)
+  DURATION_OPTIONS.include?(input)
 end
 
-def invalid_input_message(input_type)
-  case input_type
-  when 'loan_amount'
-    prompt(MESSAGES['invalid_loan_amount'])
-  when 'annual_interest'
-    prompt(MESSAGES['invalid_apr'])
-  when 'duration_years'
-    prompt(MESSAGES['invalid_duration'])
-  end
+def calculate_mortgage(loan_amount, monthly_interest, duration)
+  loan_amount.to_i *
+    (monthly_interest.to_f /
+    (1 - (1 + monthly_interest.to_f)**-duration))
+end
+
+def new_calculation?
+  prompt(MESSAGES['calculate_again'])
+  answer = gets.chomp.downcase
+  true if answer == 'y'
 end
 
 system('clear')
@@ -63,16 +64,12 @@ loop do
   duration_years = retrieve_input('duration_years')
 
   monthly_interest = ((annual_interest.to_f / 100) / 12)
-  duration_months = (duration_years.to_i * 12)
-  monthly_payment = loan_amount.to_i *
-                    (monthly_interest.to_f /
-                    (1 - (1 + monthly_interest.to_f)**-duration_months))
+  duration = (duration_years.to_i * 12)
+  monthly_payment = calculate_mortgage(loan_amount, monthly_interest, duration)
 
   puts "Your monthly payment is: $#{format('%02.2f', monthly_payment)}."
 
-  prompt(MESSAGES['calculate_again'])
-  answer = gets.chomp.downcase
-  break unless answer == 'y' || answer == 'yes'
+  break unless new_calculation?
   system('clear')
 end
 
