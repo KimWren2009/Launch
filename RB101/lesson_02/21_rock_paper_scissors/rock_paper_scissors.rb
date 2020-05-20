@@ -1,23 +1,20 @@
-VALID_CHOICES = %w(rock paper scissors lizard spock)
+require 'yaml'
+MESSAGES = YAML.load_file('rock_paper_scissors.yml')
 
-WINNING_RULES = { 'rock' => ['scissors', 'lizard'],
-                  'paper' => ['rock', 'spock'],
-                  'scissors' => ['paper', 'lizard'],
-                  'lizard' => ['spock', 'paper'],
-                  'spock' => ['scissors', 'rock']
-}
+VALID_CHOICES = %w(rock paper scissors lizard spock).freeze
+
+WINNING_RULES = { 'rock' => %w(scissors lizard),
+                  'paper' => %w(rock spock),
+                  'scissors' => %w(paper lizard),
+                  'lizard' => %w(spock paper),
+                  'spock' => %w(scissors rock) }.freeze
 
 def prompt(message)
   Kernel.puts("=> #{message}")
 end
 
-def round_winner(player, computer, pairs)
-  if pairs
-  end
-end
-
 def display_choices
-  prompt('YOUR CHOICES ARE:')
+  prompt(MESSAGES['choose_move'])
   player_choices = <<-MSG
   rock (r)
   paper (p)
@@ -28,16 +25,14 @@ def display_choices
   puts player_choices
 end
 
-def get_player_choice
-  choice = ''
-  loop do
-    display_choices()
-    choice = Kernel.gets.chomp
-    choice = convert_choice(choice)
-    break if valid_input?(choice)
-    prompt("That's not a valid choice.")
-  end
-  choice
+def display_scoreboard(scores)
+  scoreboard = <<-MSG
+
+  **** SCOREBAORD ****
+  Player: #{scores[:player]}  Computer: #{scores[:computer]}
+
+  MSG
+  puts scoreboard
 end
 
 def convert_choice(choice)
@@ -54,45 +49,73 @@ def valid_input?(choice)
   VALID_CHOICES.include?(choice)
 end
 
+def winner_round(player, computer)
+  if WINNING_RULES[player].include?(computer)
+    player
+  elsif WINNING_RULES[computer].include?(player)
+    computer
+  end
+end
+
+def update_scoreboard(player, computer, scores)
+  winner = winner_round(player, computer)
+  if winner == player
+    scores[:player] += 1
+  elsif winner == computer
+    scores[:computer] += 1
+  end
+end
+
 def display_results(player, computer)
-  if winning_pairs[player].include?
+  winner = winner_round(player, computer)
+  if winner == player
     prompt('You won!')
-  elsif winning_pairs[computer].include?
+  elsif winner == computer
     prompt('Computer won :(')
   else
     prompt('It\'s a tie!')
   end
 end
 
-choice = ''
-player_score = 0
-computer_score = 0
+def play_again?
+  prompt(MESSAGES['play_again'])
+  answer = Kernel.gets.chomp
+  true if answer.downcase.start_with?('y')
+end
+
+player_choice = ''
+
+scores = { player: 0, computer: 0 }
+
+system('clear')
+prompt(MESSAGES['welcome'])
+prompt(MESSAGES['rules'])
 
 loop do
-  player_choice = get_player_choice()
+  loop do
+    display_scoreboard(scores)
+    display_choices
+    player_choice = Kernel.gets.chomp
+    player_choice = convert_choice(player_choice)
+    break if valid_input?(player_choice)
+    system('clear')
+    prompt(MESSAGES['invalid_choice'])
+  end
+
   computer_choice = VALID_CHOICES.sample
 
   Kernel.puts("You chose: #{player_choice}; Computer chose: #{computer_choice}")
-
+  update_scoreboard(player_choice, computer_choice, scores)
   display_results(player_choice, computer_choice)
+  display_scoreboard(scores)
 
-  if win?(player_choice, computer_choice)
-    player_score += 1
-  elsif win?(computer_choice, player_choice)
-    computer_score += 1
-  end
+  break if scores[:player] == 5 || scores[:computer] == 5
 
-  prompt("Your score is #{player_score}")
-  prompt("The computer score is #{computer_score}")
-  break if player_score == 5 || computer_score == 5
-
-  prompt('Do you want to play again?')
-  answer = Kernel.gets.chomp
-  break unless answer.downcase.start_with?('y')
+  break unless play_again?
   system('clear')
 end
-
 system('clear')
+
 prompt('GAME OVER')
-prompt("The final score is Player: #{player_score} to Computer: #{computer_score}")
-prompt('Thanks for playing!')
+display_scoreboard(scores)
+prompt(MESSAGES['thanks'])

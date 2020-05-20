@@ -1,0 +1,8 @@
+choose_move: 
+  Choose your move.
+  YOUR CHOICES ARE...
+play_again: Do you want to play another round?
+welcome: Welcome to Rock, Paper, Scissors, Lizard, Spock!
+rules: The first player to 5 wins the game!
+invalid_choice: Hmm... That is not a valid choice. Please try again.
+thanks: Thanks for playing!
