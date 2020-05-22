@@ -1,13 +1,13 @@
 require 'yaml'
 MESSAGES = YAML.load_file('rock_paper_scissors.yml')
 
-VALID_CHOICES = %w(rock paper scissors lizard spock).freeze
-
-WINNING_RULES = { 'rock' => %w(scissors lizard),
-                  'paper' => %w(rock spock),
-                  'scissors' => %w(paper lizard),
-                  'lizard' => %w(spock paper),
-                  'spock' => %w(scissors rock) }.freeze
+RULES = {
+  'r' => { name: 'rock', beats: %w(l s) },
+  'p' => { name: 'paper', beats: %w(r sp) },
+  'sc' => { name: 'scissors', beats: %w(p l) },
+  'l' => { name: 'lizard', beats: %w(sp p) },
+  'sp' => { name: 'spock', beats: %w(sc r) }
+}.freeze
 
 def prompt(message)
   Kernel.puts("=> #{message}")
@@ -15,14 +15,9 @@ end
 
 def display_choices
   prompt(MESSAGES['choose_move'])
-  player_choices = <<-MSG
-  rock (r)
-  paper (p)
-  scissors (sc)
-  lizard (l)
-  spock (sp)
-  MSG
-  puts player_choices
+  RULES.each do |key, value|
+    puts "'#{key}' for #{value[:name]}"
+  end
 end
 
 def display_scoreboard(scores)
@@ -35,24 +30,14 @@ def display_scoreboard(scores)
   puts scoreboard
 end
 
-def convert_choice(choice)
-  case choice
-  when 'r' then 'rock'
-  when 'p' then 'paper'
-  when 'sc' then 'scissors'
-  when 'l' then 'lizard'
-  when 'sp' then 'spock'
-  end
-end
-
 def valid_input?(choice)
-  VALID_CHOICES.include?(choice)
+  RULES.key?(choice)
 end
 
 def winner_round(player, computer)
-  if WINNING_RULES[player].include?(computer)
+  if RULES[player][:beats].include?(computer)
     player
-  elsif WINNING_RULES[computer].include?(player)
+  elsif RULES[computer][:beats].include?(player)
     computer
   end
 end
@@ -69,9 +54,9 @@ end
 def display_results(player, computer)
   winner = winner_round(player, computer)
   if winner == player
-    prompt('You won!')
+    prompt('You won this round!')
   elsif winner == computer
-    prompt('Computer won :(')
+    prompt('Computer won this round :(')
   else
     prompt('It\'s a tie!')
   end
@@ -80,10 +65,17 @@ end
 def play_again?
   prompt(MESSAGES['play_again'])
   answer = Kernel.gets.chomp
-  true if answer.downcase.start_with?('y')
+  if answer.downcase.start_with?('y')
+    true
+  else
+    puts "Are you sure you want to end the game? 'y' to exit."
+    answer = Kernel.gets.chomp
+    true if answer.downcase.start_with?('n')
+  end
 end
 
-player_choice = ''
+player = ''
+computer = ''
 
 scores = { player: 0, computer: 0 }
 
@@ -95,19 +87,21 @@ loop do
   loop do
     display_scoreboard(scores)
     display_choices
-    player_choice = Kernel.gets.chomp
-    player_choice = convert_choice(player_choice)
-    break if valid_input?(player_choice)
+    loop do
+      player = Kernel.gets.chomp
+      break if valid_input?(player)
+      prompt(MESSAGES['invalid_choice'])
+    end
     system('clear')
-    prompt(MESSAGES['invalid_choice'])
+    break
   end
 
-  computer_choice = VALID_CHOICES.sample
+  computer = RULES.keys.sample
 
-  Kernel.puts("You chose: #{player_choice}; Computer chose: #{computer_choice}")
-  update_scoreboard(player_choice, computer_choice, scores)
-  display_results(player_choice, computer_choice)
+  update_scoreboard(player, computer, scores)
   display_scoreboard(scores)
+  puts("You: #{RULES[player][:name]}; Computer: #{RULES[computer][:name]}")
+  display_results(player, computer)
 
   break if scores[:player] == 5 || scores[:computer] == 5
 
@@ -116,6 +110,8 @@ loop do
 end
 system('clear')
 
+puts("You: #{RULES[player][:name]}; Computer: #{RULES[computer][:name]}")
+display_results(player, computer)
 prompt('GAME OVER')
 display_scoreboard(scores)
 prompt(MESSAGES['thanks'])
